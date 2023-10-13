@@ -8,26 +8,28 @@
 // const { where } = require("sequelize");
 
 
-const AuthLink = require('./models/AuthLink')
+const AuthCode = require('./models/AuthCode')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 const User = require('./models/User')
 const Role = require('./models/Role')
 const {jwtOptions} = require('./passport');
 const Company = require('./models/Company');
-// const sendEmail = require('../utils/sendMail')
+const sendEmail = require('../utils/sendMail')
 
 const sendVerificationEmail=(req,res)=>{
     console.log('req.body',req.body)
-    // const code="HH"+Date.now()
+    let fullcode=Math.floor(1000 + Math.random() * 9000).toString().slice(0, 4);
+    const code='Ваш код авторизации:        '+fullcode;
     
-    // AuthLink.create({
-    //     email:req.body.email,
-    //     code:code,
-    //     valid_till: Date.now() + 120000
-    // })
+
+    AuthCode.create({
+        email:req.body.email,
+        code:fullcode,
+        valid_till: Date.now() + 300000 //5 minutes
+    })
     
-    // sendEmail(req.body.email,"Код авторизации для hh.kz",code)
+    sendEmail(req.body.email,"Код авторизации для hh.kz",code)
     res.status(200).end()
     // res.send('Mail SENDED')
 }
@@ -51,7 +53,7 @@ const verifyCode=async(req,res)=>{
     }
     else{
         console.log(4)
-        const role = await Role.findOne({where: { name: 'employee' }})
+        const role = await Role.findOne({where: { name: 'client' }})
         let user = await User.findOne({where: { email: req.body.email }})
         
         // if (!user) {
@@ -60,8 +62,6 @@ const verifyCode=async(req,res)=>{
         //         email: req.body.email
         //     })
         // }
-
-       
         if (!role) {
             // Handle the case where the role 'employee' is not found.
             res.status(401).send({ error: "Role 'employee' not found" });
@@ -76,15 +76,17 @@ const verifyCode=async(req,res)=>{
                 });
             }
         
+
             // Rest of your code...
         }
         
-       
+
+       console.log('before create token ,User=',user)
         const token = jwt.sign({
             id: user.id,
             email: user.email,
-            full_name: user.full_name,
-            phone: user.phone,
+            // full_name: user.full_name,
+            // phone: user.phone,
             role: {
                 id: role.id,
                 name: role.name

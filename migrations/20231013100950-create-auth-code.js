@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('AuthLinks', {
+    await queryInterface.createTable('AuthCodes', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,21 +10,21 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       email: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false
       },
       link: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       valid_till: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATE(6),
         allowNull: false
       }
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('AuthLinks');
+    await queryInterface.dropTable('AuthCodes');
   }
 };

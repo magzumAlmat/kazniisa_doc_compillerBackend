@@ -1,14 +1,14 @@
 const {DataTypes} = require('sequelize')
 const sequelize = require('../../../config/db')
 
-const AuthCode = sequelize.define('AuthLink', {
+const AuthCode = sequelize.define('AuthCode', {
   email: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
     },
   link:{
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
 
   valid_till:{

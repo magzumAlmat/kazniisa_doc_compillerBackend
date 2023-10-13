@@ -1,11 +1,12 @@
-const Role=require('../app/auth/Role')
+const Role=require('../app/auth/models/Role')
 const sequelize = require('../config/db')
 
 module.exports={
     up:async(queryInterface,Sequelize)=>{
         await Role.bulkCreate([
-            {name:'employee'},
-            {name:'manager'}
+            {name:'admin'},
+            {name:'client'},//  тот кто держит уже билборды и его  проверяет инспектор
+            {name:'customer'},// тот  кто будет закупать  рекламу и отдавать на проверку
         ])
     },
 }

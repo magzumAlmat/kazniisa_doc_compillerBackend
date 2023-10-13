@@ -25,11 +25,11 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       lastname: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       roleId: {
         type: Sequelize.INTEGER,
