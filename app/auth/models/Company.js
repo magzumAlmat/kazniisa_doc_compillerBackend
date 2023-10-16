@@ -15,22 +15,25 @@ const Company = sequelize.define('Company', {
     description: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: false
 
     },
-    logo: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true
-
-    },
+  
 
     address: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
 
-    }
+    },
+    contactPhone:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+      contactEmail:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
 
 },{
     timestamps:false,})

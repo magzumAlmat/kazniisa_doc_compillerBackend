@@ -7,15 +7,163 @@
 // const {jwtOptions} = require('./passport');
 // const { where } = require("sequelize");
 
-
+const { Op } = require('sequelize');
 const AuthCode = require('./models/AuthCode')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 const User = require('./models/User')
 const Role = require('./models/Role')
 const {jwtOptions} = require('./passport');
-const Company = require('./models/Company');
+const Company= require('./models/Company')
 const sendEmail = require('../utils/sendMail')
+
+
+const createCompany=async(req,res)=>{
+    
+    try {
+        // Извлекаем данные из тела запроса
+        const { name, bin, description, address, contactPhone,contactEmail} = req.body;
+        console.log('phone',req.body.contactPhone,'email',req.body.contactEmail)
+        // Создаем новую запись в базе данных
+        const Comp = await Company.create({
+            name,
+            description,
+            bin,
+            address,
+            contactPhone,
+            contactEmail,
+        })
+    
+        const authHeader = req.headers['authorization'];
+
+        if (!authHeader) {
+            return res.status(401).json({ message: 'Authorization header is missing' });
+        }
+
+        // Check if the header starts with "Bearer "
+        if (!authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'Invalid token format' });
+        }
+
+        // Extract the token (remove "Bearer " from the header)
+        const token = authHeader.substring(7);
+
+        // Now you have the JWT token in the 'token' variable
+        // console.log('JWT Token:', token);
+
+        const UserId=jwt.decode(token)
+        console.log('Айди юзера который соответствует данному токену', UserId.id);
+
+        
+        let user = await User.findOne({where: { id:UserId.id }})
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+          }
+          
+        // console.log('hisis user=',user)
+        
+      
+          // Update the user's companyId with the newCompany.id
+          user.companyId = Comp.id;
+      
+      
+          
+        await user.save();
+        
+        console.log('User companyId должна перезаписаться')
+        
+        // Отправляем успешный ответ с новой записью
+        res.status(201).json(Comp);
+
+        
+
+      } catch (error) {
+        // В случае ошибки отправляем статус 500 и сообщение об ошибке
+        console.error(error);
+        res.status(500).json({ error: 'Не удалось создать запись в базе данных' });
+      }
+}
+
+const companySearchByName = async (req, res) => {
+    const { name } = req.query;
+  
+    try {
+      const companies = await Company.findAll({
+        where: {
+          name: {
+            [Op.iLike]: `%${name}%`, // Case-insensitive partial match
+          },
+        },
+      });
+  
+      console.log('result',companies)
+      res.json(companies);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Failed to search by name' });
+    }
+  };
+
+  const companySearchByBin = async (req, res) => {
+    const { bin } = req.query;
+  
+    try {
+      const companies = await Company.findAll({
+        where: {
+          bin: {
+            [Op.iLike]: `%${bin}%`, // Case-insensitive partial match
+          },
+        },
+      });
+  
+      
+      res.status(200).send({companies})
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Failed to search by bin' });
+    }
+  };
+
+  const companySearchByContactPhone = async (req, res) => {
+    const { contactPhone } = req.query;
+  
+    try {
+      const companies = await Company.findAll({
+        where: {
+          contactPhone: {
+            [Op.iLike]: `%${contactPhone}%`, // Case-insensitive partial match
+          },
+        },
+      });
+  
+      res.json(companies);
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Failed to search by contact phone' });
+    }
+  };
+
+  const companySearchByContactEmail = async (req, res) => {
+    const { contactEmail } = req.query;
+  
+    try {
+      const companies = await Company.findAll({
+        where: {
+          contactEmail: {
+            [Op.iLike]: `%${contactEmail}%`, // Case-insensitive partial match
+          },
+        },
+      });
+  
+      res.json(companies);
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Failed to search by contact email' });
+    }
+  };
+
 
 const sendVerificationEmail=(req,res)=>{
     console.log('req.body',req.body)
@@ -34,6 +182,7 @@ const sendVerificationEmail=(req,res)=>{
     // res.send('Mail SENDED')
 }
 
+//верификация сразу же запускает customer в аккаунт без заполнения данных
 const verifyCode=async(req,res)=>{
     const authCode=await AuthCode.findOne(
         {where:{email: req.body.email},
@@ -53,18 +202,13 @@ const verifyCode=async(req,res)=>{
     }
     else{
         console.log(4)
-        const role = await Role.findOne({where: { name: 'client' }})
+        const role = await Role.findOne({where: { name: 'customer' }})
         let user = await User.findOne({where: { email: req.body.email }})
         
-        // if (!user) {
-        //     user = await User.create({
-        //         roleId: role.id, 
-        //         email: req.body.email
-        //     })
-        // }
+       
         if (!role) {
             // Handle the case where the role 'employee' is not found.
-            res.status(401).send({ error: "Role 'employee' not found" });
+            res.status(401).send({ error: "Role 'customer' not found" });
         } else {
             let user = await User.findOne({ where: { email: req.body.email } });
         
@@ -86,7 +230,9 @@ const verifyCode=async(req,res)=>{
             id: user.id,
             email: user.email,
             // full_name: user.full_name,
-            // phone: user.phone,
+            phone: user.phone,
+            name:user.name,
+            lastname:user.lastname,
             role: {
                 id: role.id,
                 name: role.name
@@ -101,24 +247,91 @@ const verifyCode=async(req,res)=>{
         // res.status(200).send(user)
     }
 
-    // if(){
-
-    // }
+   
 }   
 
+const verifyCodeInspector=async(req,res)=>{
+    const authCode=await AuthCode.findOne(
+        {where:{email: req.body.email},
+        order:[['valid_till','DESC']] } 
+    )
+    if (!authCode){
+        // console.log(1,typeof(1))
+        res.status(401).send({error:"EMAIL NOT FOUND"})
+    }else if((new Date(authCode.valid_till).getTime()) < Date.now()){
+        // console.log(2)
+        // console.log(new Date(authCode.valid_till).getTime())
+        // console.log(Date.now())
+        res.status(401).send({error:"время прошло"})
+    }else if(authCode.code !== req.body.code){
+        // console.log(3)
+        res.status(401).send({error:"код не совпадает"})
+    }
+    else{
+        console.log(4)
+        const role = await Role.findOne({where: { name: 'inspector' }})
+        let user = await User.findOne({where: { email: req.body.email }})
+        
+       
+        if (!role) {
+            // Handle the case where the role 'employee' is not found.
+            res.status(401).send({ error: "Role 'inspector' not found" });
+        } else {
+            let user = await User.findOne({ where: { email: req.body.email } });
+        
+            if (!user) {
+                // Create a new user if it doesn't exist
+                user = await User.create({
+                    roleId: role.id, // Make sure role.id exists
+                    email: req.body.email
+                });
+            }
+        
+
+            // Rest of your code...
+        }
+        
+
+       console.log('before create token ,User=',user)
+        const token = jwt.sign({
+            id: user.id,
+            email: user.email,
+            // full_name: user.full_name,
+            phone: user.phone,
+            name:user.name,
+            lastname:user.lastname,
+            role: {
+                id: role.id,
+                name: role.name
+            }
+        }, jwtOptions.secretOrKey,
+        {
+            expiresIn: 24 * 60 * 60 * 365
+        });
+        res.status(200).send({token});
+
+
+        // res.status(200).send(user)
+    }
+
+   
+}  
 const signUp = async (req, res) =>{
     try {
         const role = await Role.findOne({
             where: {
-                name: 'manager'
+                name: 'customer'
             }
         })
         
         const company = await Company.create({
+
             name: req.body.company_name,
             description: req.body.company_description,
+            bin:req.body.company_bin,
             address: req.body.company_address,
             logo: '/company/' + req.file.filename
+
         })
         
         const salt = await bcrypt.genSalt(10);
@@ -183,5 +396,7 @@ module.exports={
     sendVerificationEmail,
     verifyCode,
     signUp,
-    logIn
+    logIn,
+    createCompany,
+    verifyCodeInspector,companySearchByBin,companySearchByContactEmail,companySearchByContactPhone,companySearchByName
 }

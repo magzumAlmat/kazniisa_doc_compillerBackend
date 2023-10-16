@@ -22,18 +22,27 @@ module.exports = {
       description: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+        unique: false
       },
-      logo: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        unique: true
-      },
+  
       address: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+        
       },
+      
+      contactPhone:{
+        type: Sequelize.STRING,
+        allowNull: false,
+     },
+    
+     contactEmail: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      },
+
+
+
     });
   },
 
