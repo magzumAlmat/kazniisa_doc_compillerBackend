@@ -86,8 +86,8 @@ const createCompany=async(req,res)=>{
 }
 
 const companySearchByName = async (req, res) => {
-    const { name } = req.query;
-  
+    const { name } = req.params;
+    console.log('name==',name)
     try {
       const companies = await Company.findAll({
         where: {
@@ -107,8 +107,9 @@ const companySearchByName = async (req, res) => {
   };
 
   const companySearchByBin = async (req, res) => {
-    const { bin } = req.query;
+    const { bin } = req.params;
   
+    console.log('thisis bin',req.params.bin)
     try {
       const companies = await Company.findAll({
         where: {
@@ -119,7 +120,7 @@ const companySearchByName = async (req, res) => {
       });
   
       
-      res.status(200).send({companies})
+      res.status(200).send(companies)
     } catch (error) {
       console.error('Error:', error);
       res.status(500).json({ error: 'Failed to search by bin' });
@@ -127,7 +128,7 @@ const companySearchByName = async (req, res) => {
   };
 
   const companySearchByContactPhone = async (req, res) => {
-    const { contactPhone } = req.query;
+    const { contactPhone } = req.params;
   
     try {
       const companies = await Company.findAll({
@@ -146,7 +147,7 @@ const companySearchByName = async (req, res) => {
   };
 
   const companySearchByContactEmail = async (req, res) => {
-    const { contactEmail } = req.query;
+    const { contactEmail } = req.params;
   
     try {
       const companies = await Company.findAll({
@@ -250,6 +251,9 @@ const verifyCode=async(req,res)=>{
    
 }   
 
+
+
+
 const verifyCodeInspector=async(req,res)=>{
     const authCode=await AuthCode.findOne(
         {where:{email: req.body.email},
@@ -316,6 +320,56 @@ const verifyCodeInspector=async(req,res)=>{
 
    
 }  
+
+const addFullProfile=async(req,res)=>{
+
+  const {password,phone,name,lastname}=req.body
+
+  console.log(password,phone,name,lastname)
+  const authHeader = req.headers['authorization'];
+
+  if (!authHeader) {
+      return res.status(401).json({ message: 'Authorization header is missing' });
+  }
+
+  // Check if the header starts with "Bearer "
+  if (!authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Invalid token format' });
+  }
+
+  // Extract the token (remove "Bearer " from the header)
+  const token = authHeader.substring(7);
+
+  // Now you have the JWT token in the 'token' variable
+  // console.log('JWT Token:', token);
+
+  const UserId=jwt.decode(token)
+  console.log('Айди юзера который соответствует данному токену', UserId.id);
+
+  
+  let user = await User.findOne({where: { id:UserId.id }})
+
+  if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+ 
+  
+    user.password = password;
+    user.phone = phone;
+    user.name = name;
+    user.lastname = lastname;
+      
+      
+          
+    await user.save();
+    
+    res.status(200).send(user);
+  
+
+
+
+}
+
 const signUp = async (req, res) =>{
     try {
         const role = await Role.findOne({
@@ -397,6 +451,6 @@ module.exports={
     verifyCode,
     signUp,
     logIn,
-    createCompany,
+    createCompany,addFullProfile,
     verifyCodeInspector,companySearchByBin,companySearchByContactEmail,companySearchByContactPhone,companySearchByName
 }

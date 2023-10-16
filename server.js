@@ -33,6 +33,7 @@ app.use(passport.initialize());
 
 app.use(require('./app/auth/routes'))
 app.use(require('./app/banner/routes'))
+app.use(require('./app/revise/routes'))
 // app.use(require('./app/region/routes'))
 // app.use(require('./app/skills/routes'))
 // app.use(require('./app/employment-type/routes'))
