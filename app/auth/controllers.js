@@ -176,15 +176,17 @@ const sendVerificationEmail=(req,res)=>{
         email:req.body.email,
         code:fullcode,
         valid_till: Date.now() + 300000 //5 minutes
+
     })
     
     sendEmail(req.body.email,"Код авторизации для hh.kz",code)
-    res.status(200).end()
+    res.status(200).send(code)
     // res.send('Mail SENDED')
 }
 
 //верификация сразу же запускает customer в аккаунт без заполнения данных
 const verifyCode=async(req,res)=>{
+
     const authCode=await AuthCode.findOne(
         {where:{email: req.body.email},
         order:[['valid_till','DESC']] } 
@@ -221,28 +223,61 @@ const verifyCode=async(req,res)=>{
                 });
             }
         
+            console.log('iam in create user')
+    
+  
+    if (!user) {
+        try {
+          user = await User.create({
+            roleId: role.id, // Make sure role.id exists
+            email: req.body.email
+        });
+            const token = jwt.sign({
+              id: user.id,
+              email: user.email,
+              // full_name: user.full_name,
+              phone: user.phone,
+              name:user.name,
+              lastname:user.lastname,
+              role: {
+                  id: role.id,
+                  name: role.name
+              }
+          }, jwtOptions.secretOrKey,
+          {
+              expiresIn: 24 * 60 * 60 * 365
+          });
+          res.status(200).send({token});
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Failed to create user' });
+        }
+    } else {
+      const token = jwt.sign({
+        id: user.id,
+        email: user.email,
+        // full_name: user.full_name,
+        phone: user.phone,
+        name:user.name,
+        lastname:user.lastname,
+        role: {
+            id: role.id,
+            name: role.name
+        }
+    }, jwtOptions.secretOrKey,
+    {
+        expiresIn: 24 * 60 * 60 * 365
+    });
+    res.status(200).send({token});
+    }
 
             // Rest of your code...
         }
         
-
+      
+      
        console.log('before create token ,User=',user)
-        const token = jwt.sign({
-            id: user.id,
-            email: user.email,
-            // full_name: user.full_name,
-            phone: user.phone,
-            name:user.name,
-            lastname:user.lastname,
-            role: {
-                id: role.id,
-                name: role.name
-            }
-        }, jwtOptions.secretOrKey,
-        {
-            expiresIn: 24 * 60 * 60 * 365
-        });
-        res.status(200).send({token});
+       
 
 
         // res.status(200).send(user)
@@ -321,11 +356,16 @@ const verifyCodeInspector=async(req,res)=>{
    
 }  
 
-const addFullProfile=async(req,res)=>{
+
+
+const addFullProfile = async(req,res)=>{
+
+  console.log('111 AddFullProfile Started',req.body)
 
   const {password,phone,name,lastname}=req.body
 
-  console.log(password,phone,name,lastname)
+  console.log('AddFullProfile Started',password,phone,name,lastname)
+
   const authHeader = req.headers['authorization'];
 
   if (!authHeader) {
@@ -339,35 +379,28 @@ const addFullProfile=async(req,res)=>{
 
   // Extract the token (remove "Bearer " from the header)
   const token = authHeader.substring(7);
-
+  console.log('token =',token)
   // Now you have the JWT token in the 'token' variable
   // console.log('JWT Token:', token);
 
-  const UserId=jwt.decode(token)
-  console.log('Айди юзера который соответствует данному токену', UserId.id);
+  const decodedToken=jwt.decode(token)
+  console.log('Айди юзера который соответствует данному токену', decodedToken);
 
   
-  let user = await User.findOne({where: { id:UserId.id }})
+  let user = await User.findOne({where: { email:decodedToken.email }})
 
+  console.log('SELECTED USER=',user)
   if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
- 
-  
     user.password = password;
     user.phone = phone;
     user.name = name;
     user.lastname = lastname;
-      
-      
-          
+        
     await user.save();
     
     res.status(200).send(user);
-  
-
-
-
 }
 
 const signUp = async (req, res) =>{

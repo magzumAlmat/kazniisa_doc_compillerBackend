@@ -17,24 +17,29 @@ function generateRandom6DigitCode() {
     return formattedCode;
   }
   
+  function generateSixDigitCodeFromDate() {
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2); // Получаем последние две цифры года
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Получаем месяц и добавляем ведущий ноль, если нужно
+    const day = now.getDate().toString().padStart(2, '0'); // Получаем день и добавляем ведущий ноль, если нужно
+  
+    const sixDigitCode = `${year}${month}${day}`;
+    return sixDigitCode;
+  }
   // Generate a random 6-digit code
  
   
 
 const createBanner=async(req,res)=>{
-    
+    console.log('Banner from createBanner server',req.body,req.file)
     try {
         // Извлекаем данные из тела запроса
-        const {  
-            title, 
-            bannerNumber,
-            banerAddress,
-            imageUrl
-        } = req.body;
+      
         
         // Создаем новую запись в базе данных
         
-        const randomCode = generateRandom6DigitCode();
+        // const randomCode = generateRandom6DigitCode();
+        const randomCode = generateSixDigitCodeFromDate()
         console.log('сформированный код',randomCode); 
 
         const authHeader = req.headers['authorization'];
@@ -77,9 +82,9 @@ const createBanner=async(req,res)=>{
 
 
         const Bann = await Banner.create({
-            title, 
-            bannerNumber,
-            banerAddress,
+            title:req.body.title, 
+            bannerNumber:req.body.bannerNumber,
+            banerAddress:req.body.bannerAddress,
             imageUrl:'/banners/' + req.file.filename,
             uniqueCode:randomCode,
             CompanyId: userCompany.id,
