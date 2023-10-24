@@ -18,6 +18,28 @@ const Company= require('./models/Company')
 const sendEmail = require('../utils/sendMail')
 
 
+const getAuthentificatedUserInfo=async(req,res)=>{
+  console.log('reqUSER fROM getAuthentificatedUserInfo= ',req.user.id)
+
+    try {
+      const USER = await User.findOne({
+        where: {
+          id: req.user.id
+        },
+      });
+  
+      console.log('result',USER)
+      res.json(USER);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Failed to search by name' });
+    }
+
+
+
+}
+
 const createCompany=async(req,res)=>{
     
     try {
@@ -483,7 +505,7 @@ module.exports={
     sendVerificationEmail,
     verifyCode,
     signUp,
-    logIn,
+    logIn,getAuthentificatedUserInfo,
     createCompany,addFullProfile,
     verifyCodeInspector,companySearchByBin,companySearchByContactEmail,companySearchByContactPhone,companySearchByName
 }

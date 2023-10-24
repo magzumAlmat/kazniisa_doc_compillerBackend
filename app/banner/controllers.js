@@ -138,6 +138,25 @@ const getBannerById=async(req,res)=>{
   }
 };
 
+const getBannerByCompenyId=async(req,res)=>{
+  try {
+    console.log('req.params',req.params)
+    const CompanyId  = req.params.companyId; // Extract the banner ID from the request parameters
+    console.log('CompanyID',CompanyId)
+    // Find the banner by its ID in the database
+    const banner = await Banner.findAll({ where: { CompanyId } });
+    console.log('BANERS=',banner)
+    if (!banner) {
+      return res.status(404).json({ message: 'Banner not found' });
+    }
+
+    // Send the banner as a JSON response
+    res.json(banner);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to retrieve the banner' });
+  }
+};
 
 
 const getBannerByuniqueCode=async(req,res)=>{
@@ -162,4 +181,4 @@ const getBannerByuniqueCode=async(req,res)=>{
 }
 
 
-module.exports={createBanner,getAllBanners,getBannerById,getBannerByuniqueCode}
+module.exports={createBanner,getAllBanners,getBannerById,getBannerByuniqueCode,getBannerByCompenyId}
