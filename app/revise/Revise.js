@@ -8,7 +8,7 @@ const Revise = sequelize.define('Revise', {
   status: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'Не провен',
+    defaultValue: 'Не проверен',
   },
  
   expiredDate: {
@@ -34,6 +34,20 @@ const Revise = sequelize.define('Revise', {
     allowNull: false,
     
   },
+
+  moderatorStatus:{
+    type: DataTypes.STRING,
+    allowNull: false,
+    
+  },
+
+  moderatorAnswer:{
+    type: DataTypes.STRING,
+    allowNull: false,
+    
+  },
+
+
   
     // Другие поля баннера
   });

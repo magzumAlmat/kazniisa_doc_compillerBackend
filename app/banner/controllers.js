@@ -4,6 +4,7 @@ const Company=require('../auth/models/Company')
 const User=require('../auth/models/User')
 const jwt = require('jsonwebtoken');
 
+
 function generateRandom6DigitCode() {
     const min = 100000; // Smallest 6-digit number
     const max = 999999; // Largest 6-digit number

@@ -12,7 +12,7 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: 'Не провен',
+        defaultValue: 'Не проверен',
       },
       expiredDate: {
         type: Sequelize.DATE,
@@ -31,21 +31,27 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Banners',
+          model: 'Banners', // Update with the actual name of your Banner model
           key: 'id',
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE', // or set to your preferred deletion behavior
       },
       UserId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
+          model: 'Users', // Update with the actual name of your User model
           key: 'id',
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE', // or set to your preferred deletion behavior
+      },
+      moderatorStatus: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'Не проверен',
+      },
+      moderatorAnswer: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'Нет описания',
       },
       createdAt: {
         allowNull: false,

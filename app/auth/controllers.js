@@ -229,7 +229,7 @@ const verifyCode=async(req,res)=>{
         console.log(4)
         const role = await Role.findOne({where: { name: 'customer' }})
         let user = await User.findOne({where: { email: req.body.email }})
-        
+        console.log('1 USER=',user)
        
         if (!role) {
             // Handle the case where the role 'employee' is not found.
@@ -261,6 +261,7 @@ const verifyCode=async(req,res)=>{
               phone: user.phone,
               name:user.name,
               lastname:user.lastname,
+              companyId:user.companyId,
               role: {
                   id: role.id,
                   name: role.name
@@ -278,7 +279,7 @@ const verifyCode=async(req,res)=>{
       const token = jwt.sign({
         id: user.id,
         email: user.email,
-        // full_name: user.full_name,
+        companyId:user.companyId,
         phone: user.phone,
         name:user.name,
         lastname:user.lastname,
