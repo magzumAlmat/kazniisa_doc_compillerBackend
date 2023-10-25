@@ -209,7 +209,6 @@ const createBanner = async (req, res) => {
 
 
 
-
 const getAllBanners=async(req,res)=>{
   try {
     // Fetch all banners from the database
