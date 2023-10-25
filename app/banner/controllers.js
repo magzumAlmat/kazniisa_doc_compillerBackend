@@ -18,13 +18,23 @@ function generateRandom6DigitCode() {
     return formattedCode;
   }
   
+
   function generateSixDigitCodeFromDate() {
     const now = new Date();
     const year = now.getFullYear().toString().slice(-2); // Получаем последние две цифры года
     const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Получаем месяц и добавляем ведущий ноль, если нужно
     const day = now.getDate().toString().padStart(2, '0'); // Получаем день и добавляем ведущий ноль, если нужно
   
-    const sixDigitCode = `${year}${month}${day}`;
+    const min = 100000; // Smallest 6-digit number
+    const max = 999999; // Largest 6-digit number
+  
+    // Generate a random number between min and max (inclusive)
+    const randomCode = Math.floor(Math.random() * (max - min + 1)) + min;
+  
+    // Ensure the generated number is exactly 6 digits
+    const formattedCode = String(randomCode).padStart(4, '0');
+
+    const sixDigitCode = `${year}${month}${formattedCode}`;
     return sixDigitCode;
   }
   // Generate a random 6-digit code

@@ -8,6 +8,7 @@ const Revise=require('./Revise')
 
 // Add a new Revise
 const createRevise = async (req, res) => {
+  console.log('req.params.bannerid=',req.params.bannerid)
   try {
     // Extract data from the request body
     const { status, expiredDate, image, description } = req.body;
@@ -21,7 +22,9 @@ const createRevise = async (req, res) => {
       image:'/revises/' + req.file.filename,
       description,
       UserId:id,
-      BannerId:req.params.bannerid
+      BannerId:req.params.bannerid,
+      moderatorStatus:'',
+      moderatorAnswer:''
 
     });
 
@@ -41,18 +44,18 @@ const createRevise = async (req, res) => {
 
 
 
-// const getAllBanners=async(req,res)=>{
-//   try {
-//     // Fetch all banners from the database
-//     const banners = await Banner.findAll();
+const getAllRevises=async(req,res)=>{
+  try {
+    // Fetch all banners from the database
+    const revises = await Revise.findAll();
 
-//     // Send the banners as a JSON response
-//     res.json(banners);
-//   } catch (error) {
-//     console.error('Error:', error);
-//     res.status(500).json({ error: 'Failed to retrieve banners' });
-//   }
-// }
+    // Send the banners as a JSON response
+    res.json(revises);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to retrieve banners' });
+  }
+}
 
 
 // const getBannerById=async(req,res)=>{
@@ -98,4 +101,4 @@ const createRevise = async (req, res) => {
 // }
 
 
-module.exports={createRevise}
+module.exports={createRevise,getAllRevises}
