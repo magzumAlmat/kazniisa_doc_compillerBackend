@@ -128,6 +128,21 @@ const companySearchByName = async (req, res) => {
     }
   };
 
+  
+const allCompanies   = async (req, res) => {
+  const { name } = req.params;
+  console.log('name==',name)
+  try {
+    const companies = await Company.findAll();
+
+    console.log('result',companies)
+    res.json(companies);
+    
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to search by name' });
+  }
+};
   const companySearchByBin = async (req, res) => {
     const { bin } = req.params;
   
@@ -462,48 +477,85 @@ const signUp = async (req, res) =>{
 }
 
 const logIn = async (req, res) =>{
-    try {
-        if(
-            !req.body.email
-            || req.body.email.length === 0
-            || !req.body.password
-            || req.body.password.length === 0){
-                res.status(401).send({message: "Bad credentials"})
-            }else{
-                const user = await User.findOne({
-                    where: {
-                        email: req.body.email
-                    }
-                })
-                if(!user) return res.status(401).send({message: "User with that email is not exists"})
+    console.log('iam in auth user')
+    let user = await User.findOne({where: {email: req.body.email}});
 
-                const isMatch = await bcrypt.compare(req.body.password, user.password)
-                if(isMatch){
-                    const role = await Role.findByPk(user.roleId)
-                    const token = jwt.sign({
-                        id: user.id,
-                        email: user.email,
-                        full_name: user.full_name,
-                        phone: user.phone,
-                        role: {
-                            id: role.id,
-                            name: role.name
-                        }
-                    }, jwtOptions.secretOrKey, {
-                        expiresIn: 24 * 60 * 60 * 365
-                    });
-                    res.status(200).send({token});
-                }else{
-                    res.status(401).send({message: "Password is incorrect"})
-                }
-            }
-    } catch (error) {
-        res.status(500).send(error)
-    }      
+    const {  password } = req.body;
+
+    // const isPasswordValid = await bcrypt.compare(password, user.password);
+    if(password===user.password){
+                      isPasswordValid=true
+                    }
+                    else{
+                      isPasswordValid=false
+                    }
+    console.log(user,'COMPARE=',password,'==',user.password,'isMtch=',isPasswordValid)
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    const token = jwt.sign({
+        id: user.id,
+        email: user.email,
+        password:user.password,
+    }, jwtOptions.secretOrKey, {
+        expiresIn: 24 * 60 * 60 * 365
+    });
+    res.status(200).json({ prompt: 'Authorization successful' ,token});
+
+
+
+  // console.log('LOGIN ',req.body.email,req.body.password)
+  //   try {
+  //       if(
+  //           !req.body.email
+  //           || req.body.email.length === 0
+  //           || !req.body.password
+  //           || req.body.password.length === 0){
+  //               res.status(401).send({message: "Bad credentials"})
+  //           }else{
+  //               const user = await User.findOne({
+  //                   where: {
+  //                       email: req.body.email
+  //                   }
+  //               })
+  //               if(!user) return res.status(401).send({message: "User with that email is not exists"})
+
+                
+  //               // const isMatch = await bcrypt.compare(req.body.password, user.password)
+  //               if(req.body.password===user.password){
+  //                 isMatch=true
+  //               }
+  //               else{
+  //                 isMatch=false
+  //               }
+
+  //               console.log(user,'COMPARE=',typeof(req.body.password),'==',typeof(user.password),'isMtch=',isMatch)
+                
+  //               if(isMatch){
+  //                   const role = await Role.findByPk(user.roleId)
+  //                   const token = jwt.sign({
+  //                       id: user.id,
+  //                       email: user.email,
+  //                       role: {
+  //                           id: role.id,
+  //                           name: role.name
+  //                       }
+  //                   }, jwtOptions.secretOrKey, {
+  //                       expiresIn: 24 * 60 * 60 * 365
+  //                   });
+  //                   res.status(200).send({token});
+  //               }else{
+  //                   res.status(401).send({message: "Password is incorrect"})
+  //               }
+  //           }
+  //   } catch (error) {
+  //       res.status(500).send(error)
+  //   }      
 }
 
+
 module.exports={
-    sendVerificationEmail,
+    sendVerificationEmail,allCompanies,
     verifyCode,
     signUp,
     logIn,getAuthentificatedUserInfo,
