@@ -3,7 +3,7 @@ const Banner=require('./Banner')
 const Company=require('../auth/models/Company')
 const User=require('../auth/models/User')
 const jwt = require('jsonwebtoken');
-
+const sharp = require('sharp');
 
 function generateRandom6DigitCode() {
     const min = 100000; // Smallest 6-digit number
@@ -41,84 +41,173 @@ function generateRandom6DigitCode() {
  
   
 
-const createBanner=async(req,res)=>{
-    console.log('Banner from createBanner server',req.body,req.file)
-    try {
-        // Извлекаем данные из тела запроса
+// const createBanner=async(req,res)=>{
+//     console.log('Banner from createBanner server',req.body,req.file)
+//     try {
+//         // Извлекаем данные из тела запроса
       
         
-        // Создаем новую запись в базе данных
+//         // Создаем новую запись в базе данных
         
-        // const randomCode = generateRandom6DigitCode();
-        const randomCode = generateSixDigitCodeFromDate()
-        console.log('сформированный код',randomCode); 
+//         // const randomCode = generateRandom6DigitCode();
+//         const randomCode = generateSixDigitCodeFromDate()
+//         console.log('сформированный код',randomCode); 
 
-        const authHeader = req.headers['authorization'];
+//         const authHeader = req.headers['authorization'];
 
-        if (!authHeader) {
-            return res.status(401).json({ message: 'Authorization header is missing' });
-        }
+//         if (!authHeader) {
+//             return res.status(401).json({ message: 'Authorization header is missing' });
+//         }
 
-        // Check if the header starts with "Bearer "
-        if (!authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ message: 'Invalid token format' });
-        }
+//         // Check if the header starts with "Bearer "
+//         if (!authHeader.startsWith('Bearer ')) {
+//             return res.status(401).json({ message: 'Invalid token format' });
+//         }
 
-        // Extract the token (remove "Bearer " from the header)
-        const token = authHeader.substring(7);
+//         // Extract the token (remove "Bearer " from the header)
+//         const token = authHeader.substring(7);
 
-        // Now you have the JWT token in the 'token' variable
-        // console.log('JWT Token:', token);
+//         // Now you have the JWT token in the 'token' variable
+//         // console.log('JWT Token:', token);
 
-        const UserId=jwt.decode(token)
-        console.log('Айди юзера который соответствует данному токену', UserId.id);
+//         const UserId=jwt.decode(token)
+//         console.log('Айди юзера который соответствует данному токену', UserId.id);
 
         
-        let user = await User.findOne({where: { id:UserId.id }})
+//         let user = await User.findOne({where: { id:UserId.id }})
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-          }
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//           }
           
-        console.log('User.creatorId',user.companyId)
+//         console.log('User.creatorId',user.companyId)
 
-        // console.log('hisis user=',user)
-        // Find the user's associated company
-        const userCompany = await Company.findOne({ where: { id: user.companyId } });
+//         // console.log('hisis user=',user)
+//         // Find the user's associated company
+//         const userCompany = await Company.findOne({ where: { id: user.companyId } });
     
-        if (!userCompany) {
-          return res.status(404).json({ message: 'User does not have an associated company.' });
-        }   
+//         if (!userCompany) {
+//           return res.status(404).json({ message: 'User does not have an associated company.' });
+//         }   
 
-        console.log('1111req.body=',req.body)
-        console.log('1111USERCOMPANY=',userCompany)
+//         console.log('1111req.body=',req.body)
+//         console.log('1111USERCOMPANY=',userCompany)
 
-        const Bann = await Banner.create({
-            title:req.body.title, 
-            bannerNumber:req.body.bannerNumber,
-            banerAddress:req.body.bannerAddress,
-            imageUrl:'/banners/' + req.file.filename,
-            uniqueCode: randomCode,
-            CompanyId: userCompany.id,
-            createdDate: req.body.createdDate,
-            rentDays: req.body.rentDays,
-            expiredDate: req.body.expiredDate,
+
+        
+
+//         const Bann = await Banner.create({
+//             title:req.body.title, 
+//             bannerNumber:req.body.bannerNumber,
+//             banerAddress:req.body.bannerAddress,
+//             imageUrl:'/banners/' + req.file.filename,
+//             uniqueCode: randomCode,
+//             CompanyId: userCompany.id,
+//             createdDate: req.body.createdDate,
+//             rentDays: req.body.rentDays,
+//             expiredDate: req.body.expiredDate,
             
 
-        })
+//         })
     
        
-        // Отправляем успешный ответ с новой записью
-        res.status(201).json(Bann);
+//         // Отправляем успешный ответ с новой записью
+//         res.status(201).json(Bann);
 
         
 
-      } catch (error) {
-        // В случае ошибки отправляем статус 500 и сообщение об ошибке
-        console.error(error);
-        res.status(500).json({ error: 'Не удалось создать запись в базе данных' });
+//       } catch (error) {
+//         // В случае ошибки отправляем статус 500 и сообщение об ошибке
+//         console.error(error);
+//         res.status(500).json({ error: 'Не удалось создать запись в базе данных' });
+//       }
+// }
+
+const createBanner = async (req, res) => {
+  console.log('Banner from createBanner server', req.body, req.file);
+
+  try {
+      // Извлекаем данные из тела запроса
+
+      // Создаем новую запись в базе данных
+
+      // const randomCode = generateRandom6DigitCode();
+      const randomCode = generateSixDigitCodeFromDate();
+      console.log('сформированный код', randomCode);
+
+      const authHeader = req.headers['authorization'];
+
+      if (!authHeader) {
+          return res.status(401).json({ message: 'Authorization header is missing' });
       }
-}
+
+      // Check if the header starts with "Bearer "
+      if (!authHeader.startsWith('Bearer ')) {
+          return res.status(401).json({ message: 'Invalid token format' });
+      }
+
+      // Extract the token (remove "Bearer " from the header)
+      const token = authHeader.substring(7);
+
+      // Now you have the JWT token in the 'token' variable
+      // console.log('JWT Token:', token);
+
+      const UserId = jwt.decode(token);
+      console.log('Айди юзера, который соответствует данному токену', UserId.id);
+
+      let user = await User.findOne({where: { id:UserId.id }})
+
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      console.log('User.creatorId', user.companyId);
+
+      // Find the user's associated company
+      const userCompany = await Company.findOne({ where: { id: user.companyId } });
+
+      if (!userCompany) {
+          return res.status(404).json({ message: 'User does not have an associated company.' });
+      }
+
+      console.log('1111req.body=', req.body);
+      console.log('1111USERCOMPANY=', userCompany);
+
+      // Обработка изображения с использованием библиотеки sharp
+      sharp(req.file.path) // Загруженный файл
+          .resize(800, 600) // Изменение размера изображения
+          .toFormat('webp', { quality: 20 }) // Конвертация в WebP
+          .toFile(`./public/banners/${randomCode}.webp`, async (err, info) => {
+              if (err) {
+                  console.error(err);
+                  return res.status(500).json({ error: 'Ошибка при обработке изображения' });
+              }
+
+              const Bann = await Banner.create({
+                  title: req.body.title,
+                  bannerNumber: req.body.bannerNumber,
+                  banerAddress: req.body.bannerAddress,
+                  imageUrl: `/banners/${randomCode}.webp`,
+                  uniqueCode: randomCode,
+                  CompanyId: userCompany.id,
+                  createdDate: req.body.createdDate,
+                  rentDays: req.body.rentDays,
+                  expiredDate: req.body.expiredDate,
+              });
+
+              // Отправляем успешный ответ с новой записью
+              res.status(201).json(Bann);
+          });
+
+  } catch (error) {
+      // В случае ошибки отправляем статус 500 и сообщение об ошибке
+      console.error(error);
+      res.status(500).json({ error: 'Не удалось создать запись в базе данных' });
+  }
+};
+
+
+
 
 
 const getAllBanners=async(req,res)=>{
