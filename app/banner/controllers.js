@@ -80,15 +80,20 @@ const createBanner=async(req,res)=>{
           return res.status(404).json({ message: 'User does not have an associated company.' });
         }   
 
-
+        console.log('1111req.body=',req.body)
+        console.log('1111USERCOMPANY=',userCompany)
 
         const Bann = await Banner.create({
             title:req.body.title, 
             bannerNumber:req.body.bannerNumber,
             banerAddress:req.body.bannerAddress,
             imageUrl:'/banners/' + req.file.filename,
-            uniqueCode:randomCode,
+            uniqueCode: randomCode,
             CompanyId: userCompany.id,
+            createdDate: req.body.createdDate,
+            rentDays: req.body.rentDays,
+            expiredDate: req.body.expiredDate,
+            
 
         })
     

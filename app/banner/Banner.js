@@ -22,6 +22,19 @@ const Banner = sequelize.define('Banner', {
         type:DataTypes.STRING,
         allowNull:false
     },
+    createdDate:{
+      type:DataTypes.STRING,
+      allowNull:false
+  },
+    rentDays:{
+      type:DataTypes.STRING,
+      allowNull:false
+  },
+    expiredDate:{
+      type:DataTypes.STRING,
+      allowNull:false
+  },
+
   
     // Другие поля баннера
   });

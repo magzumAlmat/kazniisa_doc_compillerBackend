@@ -1,4 +1,5 @@
 'use strict';
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Banners', {
@@ -28,7 +29,18 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      // Добавьте другие поля баннера здесь
+      createdDate: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      rentDays: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      expiredDate: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -48,6 +60,7 @@ module.exports = {
       },
     });
   },
+
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('Banners');
   },
