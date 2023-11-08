@@ -25,7 +25,8 @@ sequelize = new Sequelize({
     username:dbConf.development.username,
     host:dbConf.development.host,
     dialect:dbConf.development.dialect,
-    password:dbConf.development.password, 
+    password:dbConf.development.password,
+    port:dbConf.development.port
 })
 }
 sequelize

@@ -1,8 +1,8 @@
 version: '3.7'
 
 services:
-  genplan_db:
-    container_name: genplan_db
+  kazniisa_db:
+    container_name: kazniisa_db
     ports:
       - 5432:5432
     environment:
