@@ -9,6 +9,7 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
+      t_number:DataTypes.STRING,
       name: DataTypes.STRING,
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
