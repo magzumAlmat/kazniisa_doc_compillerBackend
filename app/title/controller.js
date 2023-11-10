@@ -12,13 +12,69 @@ const createTitle = async (req, res) => {
       return res.status(500).json({ error: 'Error creating title' });
     }
   };
-  
 
+
+
+  const deleteTitle=async(req,res)=>{
+
+    console.log('delete title started',req.params.passedId)
+    try {
+      const data = await Title.destroy({
+          where: {
+            id:req.params.passedId
+          }
+      })
+      res.status(200).end()
+  } catch (error) {
+      res.status(500).send(error)
+  }
+     
+    
+  
+  }  
+  
+const updateTitle=async(req,res)=>{
+  console.log('updateTitle',req.body.t_number,req.body.name,req.body.passedId)
+  try {
+    await Title.update({
+      t_number: req.body.t_number,
+      name: req.body.name,
+       
+    }, {
+        where: {
+        id: req.body.passedId
+        }
+    })
+  } catch (error) {
+    return res.status(500).json({ error: 'Error retrieving titles' });
+  }
+
+
+}
+
+const updateSubTitle=async(req,res)=>{
+  console.log('updateTitle',req.body.p_number,req.body.name,'passedID=',req.body.passedId)
+  try {
+    await Subtitle.update({
+      p_number: req.body.p_number,
+      name: req.body.name,
+    }, {
+        where: {
+        id: req.body.passedId
+        }
+    })
+  } catch (error) {
+    return res.status(500).json({ error: 'Error retrieving titles' });
+  }
+
+
+}
 // Get all titles
 const getTitles = async (req, res) => {
   try {
     const titles = await Title.findAll();
-    return res.status(200).json(titles);
+    console.log("Titles===============", titles)
+    return res.status(200).send(titles);
   } catch (error) {
     return res.status(500).json({ error: 'Error retrieving titles' });
   }
@@ -37,7 +93,7 @@ const createSubtitleById = async (req, res) => {
         name: req.body.name,
         p_number: req.body.p_number,
         text: req.body.text,
-        TitleId: req.params.id,
+        TitleId: req.body.TitleId,
       });
   
       return res.status(201).json(subtitle);
@@ -66,6 +122,9 @@ module.exports = {
   getSubtitles,
   createTitle,
   getTitles,
+  updateTitle,
+  deleteTitle,
+  updateSubTitle
   // Add other controller methods here.
 };
 
