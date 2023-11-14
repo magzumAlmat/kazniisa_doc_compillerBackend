@@ -3,7 +3,7 @@ const router=express.Router()
 
 
 // Import your controllers
-const {createTitle, getTitles, getSubtitles, createSubtitleById,updateTitle,deleteTitle,updateSubTitle} = require('./controller');
+const {createTitle, getTitles, getSubtitles, createSubtitleById,updateTitle,deleteTitle,updateSubTitle,updateAllTitleNumbers} = require('./controller');
 
 // Define routes for titles and subtitles
 router.put('/api/edittitle', updateTitle);
@@ -14,4 +14,5 @@ router.delete('/api/delete/:passedId', deleteTitle);
 router.post('/api/createsubtitle', createSubtitleById);
 router.get('/api/getsubtitles', getSubtitles);
 router.put('/api/editsubtitle', updateSubTitle)
+router.put('/api/editalltitlenumbers', updateAllTitleNumbers)
 module.exports = router;

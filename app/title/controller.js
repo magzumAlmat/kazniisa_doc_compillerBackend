@@ -52,12 +52,54 @@ const updateTitle=async(req,res)=>{
 
 }
 
+const updateAllTitleNumbers = async (req, res) => {
+  try {
+    let t_numbers = [];
+    t_numbers.push(req.body.t_number)
+    const t_numericArray = t_numbers[0].split(',').map(Number);
+ 
+
+    let passid=[]
+    passid.push(req.body.passedId)
+    const numericArray = passid[0].split(',').map(Number);
+
+    console.log('numberARRAY',numericArray,'tnumbers=',t_numericArray);
+   
+    // Если t_numbers не является массивом, создайте массив из одного элемента
+    if (!Array.isArray(t_numbers)) {
+      t_numbers = [t_numbers];
+    }
+
+    if (t_numericArray.length !== numericArray.length) {
+      return res.status(400).json({ error: 'Array lengths do not match' });
+    }
+
+    for (let i = 0; i < t_numericArray.length; i++) {
+      console.log('3 item inside loop', t_numericArray[i]);
+      await Title.update(
+        // console.log('t_numericArray[i] insideupdate====',t_numericArray[i])
+        { t_number: t_numericArray[i] },
+        { where: { id: numericArray[i] } }
+      );
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error updating records:', error);
+    return res.status(500).json({ error: 'Error updating records' });
+  }
+};
+
+
+
+
 const updateSubTitle=async(req,res)=>{
-  console.log('updateTitle',req.body.p_number,req.body.name,'passedID=',req.body.passedId)
+  console.log('updateTitle',req.body.p_number,req.body.name,'passedID=',req.body.passedId,'text===',req.body.text)
   try {
     await Subtitle.update({
       p_number: req.body.p_number,
       name: req.body.name,
+      text:req.body.text,
     }, {
         where: {
         id: req.body.passedId
@@ -73,7 +115,7 @@ const updateSubTitle=async(req,res)=>{
 const getTitles = async (req, res) => {
   try {
     const titles = await Title.findAll();
-    console.log("Titles===============", titles)
+    // console.log("Titles===============", titles)
     return res.status(200).send(titles);
   } catch (error) {
     return res.status(500).json({ error: 'Error retrieving titles' });
@@ -124,7 +166,8 @@ module.exports = {
   getTitles,
   updateTitle,
   deleteTitle,
-  updateSubTitle
+  updateSubTitle,
+  updateAllTitleNumbers
   // Add other controller methods here.
 };
 
